@@ -11,12 +11,31 @@ public class User {
     @Id
     @GeneratedValue
     @Column(name = "iduser")
-    private long id;
+    private Long id;
 
     private String name;
 
-    public long getId() {
+    private String password;
+
+    private String email;
+
+    @Column(name = "profileimg")
+    private String profileImg;
+
+    public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getProfileImg() {
+        return profileImg;
+    }
+
+    public void setProfileImg(String profileImg) {
+        this.profileImg = profileImg;
     }
 
     public String getName() {
@@ -27,4 +46,19 @@ public class User {
         this.name = name;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }
