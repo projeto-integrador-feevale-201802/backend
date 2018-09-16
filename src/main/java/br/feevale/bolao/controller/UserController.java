@@ -1,9 +1,14 @@
 package br.feevale.bolao.controller;
 
+import br.feevale.bolao.exception.CustomException;
 import br.feevale.bolao.model.User;
 import br.feevale.bolao.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Resource;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("user")
@@ -27,8 +32,17 @@ public class UserController {
 //    @ResponseBody
 //    @RequestMapping(method = RequestMethod.GET, value = "/{userId}")
 //    public Resource<User> getUser(@PathVariable("userId") Long userId) {
-////        return service.findById(userId);
-//        throw new CustomExceptionHandler(200, "teste", null);
+//        List<String> erros = new ArrayList<>();
+
+//        erros.add("email envalido");
+//        erros.add("senha errada");
+//        throw new CustomException(erros);
+
+//        throw new CustomException("exemplo de erro");
+
+//        User userNull = null;
+//        userNull.getEmail(); // Null Pointer Exception Test Handler
+//        return null;
 //    }
 
     @ResponseBody
