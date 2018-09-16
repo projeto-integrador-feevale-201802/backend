@@ -41,7 +41,6 @@ public class UserController {
         }
     }
 
-    @CrossOrigin
     @ResponseBody
     @PostMapping(value = "/login")
     public User login(@RequestBody User user) {
