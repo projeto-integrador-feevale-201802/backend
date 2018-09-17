@@ -1,14 +1,9 @@
 package br.feevale.bolao.controller;
 
-import br.feevale.bolao.exception.CustomException;
 import br.feevale.bolao.model.User;
 import br.feevale.bolao.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.Resource;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("user")
@@ -48,11 +43,7 @@ public class UserController {
     @ResponseBody
     @RequestMapping(method = RequestMethod.POST, value = "/save")
     public User save(@RequestBody User user) {
-        try {
-            return service.save(user);
-        } catch (Exception e) {
-            return null;
-        }
+        return service.save(user);
     }
 
     @ResponseBody
