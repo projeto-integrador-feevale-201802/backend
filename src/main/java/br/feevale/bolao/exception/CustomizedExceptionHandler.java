@@ -17,6 +17,7 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
     public final ResponseEntity<ApiError> handleCustomException(CustomException ex, WebRequest request) {
+        System.out.println(ex.getErrors());
         ex.printStackTrace();
         return new ResponseEntity<>(new ApiError(ex.getErrors()), HttpStatus.OK);
     }
