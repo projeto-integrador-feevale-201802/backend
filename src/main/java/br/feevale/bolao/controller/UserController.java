@@ -42,8 +42,8 @@ public class UserController {
 
     @ResponseBody
     @RequestMapping(method = RequestMethod.POST, value = "/save")
-    public User save(@RequestBody User user) {
-        return service.save(user);
+    public void save(@RequestBody User user) {
+        service.save(user);
     }
 
     @ResponseBody

@@ -26,7 +26,7 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
     public final ResponseEntity<ApiError> handleAllExceptions(Exception ex, WebRequest request) {
         List<String> errors = new ArrayList<>();
         ex.printStackTrace();
-        if(ex.getMessage() == null) {
+        if (ex.getMessage() == null) {
             errors.add("GENERIC_ERROR");
         } else {
             errors.add(ex.getMessage());
