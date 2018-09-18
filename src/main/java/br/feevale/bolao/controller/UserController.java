@@ -1,27 +1,34 @@
 package br.feevale.bolao.controller;
 
+import br.feevale.bolao.model.Auth;
 import br.feevale.bolao.model.User;
+import br.feevale.bolao.service.AuthService;
 import br.feevale.bolao.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("user")
 public class UserController {
 
     @Autowired
-    private UserService service;
+    private UserService userService;
+
+    @Autowired
+    private AuthService authService;
 
 //    @ResponseBody
 //    @RequestMapping(method = RequestMethod.GET)
 //    public List<User> listAll() {
-//        return service.findAll();
+//        return userService.findAll();
 //    }
 
     @ResponseBody
     @RequestMapping(method = RequestMethod.GET, value = "/{userId}")
     public User getUser(@PathVariable("userId") Long userId) {
-        return service.findById(userId);
+        return userService.findById(userId);
     }
 
 //    @ResponseBody
@@ -43,13 +50,32 @@ public class UserController {
     @ResponseBody
     @RequestMapping(method = RequestMethod.POST, value = "/save")
     public User save(@RequestBody User user) {
-        return service.save(user);
+        return userService.save(user);
     }
 
     @ResponseBody
     @PostMapping(value = "/login")
-    public User login(@RequestBody User user) {
-        return service.findByEmailAndPassword(user.getEmail(), user.getPassword());
+    public Object login(@RequestBody User user) {
+        user = userService.findByEmailAndPassword(user.getEmail(), user.getPassword());
+
+        if (user == null) {
+            throw new RuntimeException("E-mail ou senha invláidos");
+        }
+
+        String token = authService.authorize(user.getId());
+
+        HashMap<String, String> json = new HashMap<>();
+
+        json.put("token", token);
+
+        return json;
+    }
+
+    @ResponseBody
+    @PostMapping(value = "/logout")
+    public Object logout(@RequestBody Auth auth) {
+        authService.removeAuth(auth.getToken());
+        return new Object();
     }
 
 }
