@@ -1,6 +1,5 @@
 package br.feevale.bolao.exception;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ApiError {
