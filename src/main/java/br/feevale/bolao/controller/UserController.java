@@ -59,7 +59,7 @@ public class UserController {
         user = userService.findByEmailAndPassword(user.getEmail(), user.getPassword());
 
         if (user == null) {
-            throw new RuntimeException("E-mail ou senha invláidos");
+            throw new RuntimeException("E-mail ou senha inválidos");
         }
 
         String token = authService.authorize(user.getId());
