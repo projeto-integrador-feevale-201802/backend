@@ -1,7 +1,8 @@
 package br.feevale.bolao.controller;
 
-import br.feevale.bolao.AtualizadorTabelaJogos;
-import br.feevale.bolao.model.User;
+import br.feevale.bolao.TeamsClassificationUpdater;
+import br.feevale.bolao.service.ClassificationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -10,12 +11,16 @@ import java.util.HashMap;
 @RequestMapping("classification")
 public class ClassificationController {
 
+    @Autowired
+    private ClassificationService classificationService;
+
     @ResponseBody
     @RequestMapping(method = RequestMethod.GET, value = "/teams")
     public Object teams() {
-        AtualizadorTabelaJogos att = new AtualizadorTabelaJogos();
+        TeamsClassificationUpdater att = new TeamsClassificationUpdater(classificationService);
+        Thread thread = new Thread(att);
 
-        att.run();
+        thread.start();
 
         HashMap<String, Object> resp = new HashMap<>();
 
