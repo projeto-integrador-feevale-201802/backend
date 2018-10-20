@@ -1,6 +1,7 @@
 package br.feevale.bolao.controller;
 
 import br.feevale.bolao.model.Auth;
+import br.feevale.bolao.model.Success;
 import br.feevale.bolao.model.User;
 import br.feevale.bolao.service.AuthService;
 import br.feevale.bolao.service.UserService;
@@ -49,8 +50,9 @@ public class UserController {
 
     @ResponseBody
     @RequestMapping(method = RequestMethod.POST, value = "/save")
-    public void save(@RequestBody User user) {
+    public Success save(@RequestBody User user) {
         userService.save(user);
+        return new Success();
     }
 
     @ResponseBody
@@ -73,9 +75,9 @@ public class UserController {
 
     @ResponseBody
     @PostMapping(value = "/logout")
-    public Object logout(@RequestBody Auth auth) {
+    public Success logout(@RequestBody Auth auth) {
         authService.removeAuth(auth.getToken());
-        return new Object();
+        return new Success();
     }
 
 }
