@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -35,13 +36,10 @@ public class AuthService {
         return auth.getToken();
     }
 
+    @Transactional
     public void removeAuth(String token) {
-        Auth auth = new Auth();
-
-        auth.setToken(token);
-
         try {
-            repository.delete(auth);
+            repository.deleteByToken(token);
         } catch (EmptyResultDataAccessException ex) {
             // ignore!
         }

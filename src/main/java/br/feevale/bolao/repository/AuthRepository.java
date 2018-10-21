@@ -9,4 +9,6 @@ import java.util.Optional;
 public interface AuthRepository extends JpaRepository<Auth, Long> {
     @Query(value = "select count(*) = 1 from auth where token = ?1 and expiration <= unix_timestamp()", nativeQuery = true)
     boolean isTokenValid(String token);
+
+    void deleteByToken(String token);
 }
