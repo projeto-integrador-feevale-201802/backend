@@ -1,7 +1,7 @@
 package br.feevale.bolao.controller;
 
+import br.feevale.bolao.exception.CustomException;
 import br.feevale.bolao.model.Auth;
-import br.feevale.bolao.model.Success;
 import br.feevale.bolao.model.User;
 import br.feevale.bolao.service.AuthService;
 import br.feevale.bolao.service.UserService;
@@ -26,11 +26,11 @@ public class UserController {
 //        return userService.findAll();
 //    }
 
-    @ResponseBody
-    @RequestMapping(method = RequestMethod.GET, value = "/{userId}")
-    public User getUser(@PathVariable("userId") Long userId) {
-        return userService.findById(userId);
-    }
+//    @ResponseBody
+//    @RequestMapping(method = RequestMethod.GET, value = "/{userId}")
+//    public User getUser(@PathVariable("userId") Long userId) {
+//        return userService.findById(userId);
+//    }
 
 //    @ResponseBody
 //    @RequestMapping(method = RequestMethod.GET, value = "/{userId}")
@@ -50,9 +50,8 @@ public class UserController {
 
     @ResponseBody
     @RequestMapping(method = RequestMethod.POST, value = "/save")
-    public Success save(@RequestBody User user) {
+    public void save(@RequestBody User user) {
         userService.save(user);
-        return new Success();
     }
 
     @ResponseBody
@@ -61,7 +60,7 @@ public class UserController {
         user = userService.findByEmailAndPassword(user.getEmail(), user.getPassword());
 
         if (user == null) {
-            throw new RuntimeException("E-mail ou senha inválidos");
+            throw new CustomException("E-mail ou senha inválidos");
         }
 
         String token = authService.authorize(user.getId());
@@ -75,9 +74,8 @@ public class UserController {
 
     @ResponseBody
     @PostMapping(value = "/logout")
-    public Success logout(@RequestBody Auth auth) {
+    public void logout(@RequestBody Auth auth) {
         authService.removeAuth(auth.getToken());
-        return new Success();
     }
 
 }
