@@ -61,7 +61,7 @@ public class ClassificationService {
         while (matcherNames.find() && matcherStats.find()) {
             final HashMap<String, Object> team = new HashMap<>();
 
-            team.put("clube", matcherNames.group(1));
+            team.put("nome", matcherNames.group(1));
             team.put("P", Integer.parseInt(matcherStats.group(1)));
             team.put("J", Integer.parseInt(matcherStats.group(2)));
             team.put("V", Integer.parseInt(matcherStats.group(3)));
