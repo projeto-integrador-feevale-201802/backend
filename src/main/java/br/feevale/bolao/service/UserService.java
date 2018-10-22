@@ -50,9 +50,9 @@ public class UserService {
         return repository.findAll();
     }
 
-    public User findById(Long userId) {
-        return repository.findById(userId).orElse(null);
-    }
+//    public User findById(Long userId) {
+//        return repository.findById(userId).orElse(null);
+//    }
 
     private List<String> validateUser(User user) {
         List<String> erros = new ArrayList<>();

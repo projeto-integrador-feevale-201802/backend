@@ -8,6 +8,5 @@
 
     <include relativeToChangelogFile="true" file="user/user-create-table.sql"/>
     <include relativeToChangelogFile="true" file="user/add-user-auto-increment.sql"/>
-
     <include relativeToChangelogFile="true" file="auth/auth-create-table.sql"/>
 </databaseChangeLog>
