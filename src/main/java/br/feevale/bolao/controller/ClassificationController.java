@@ -15,4 +15,10 @@ public class ClassificationController {
     public Object teams() {
         return classificationService.getTeamsClassificationJson();
     }
+
+    @ResponseBody
+    @RequestMapping(method = RequestMethod.GET, value = "/users")
+    public Object users() {
+        return classificationService.getUsersClassification();
+    }
 }
