@@ -1,8 +1,11 @@
 package br.feevale.bolao.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.persistence.*;
 
 @Entity
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class User {
 
     @Id

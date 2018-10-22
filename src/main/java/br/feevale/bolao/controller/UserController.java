@@ -26,11 +26,11 @@ public class UserController {
 //        return userService.findAll();
 //    }
 
-//    @ResponseBody
-//    @RequestMapping(method = RequestMethod.GET, value = "/{userId}")
-//    public User getUser(@PathVariable("userId") Long userId) {
-//        return userService.findById(userId);
-//    }
+    @ResponseBody
+    @RequestMapping(method = RequestMethod.GET, value = "/{userId}")
+    public User getUser(@PathVariable("userId") Long userId) {
+        return userService.findById(userId);
+    }
 
 //    @ResponseBody
 //    @RequestMapping(method = RequestMethod.GET, value = "/{userId}")

@@ -27,7 +27,7 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
         List<String> errors = new ArrayList<>();
         ex.printStackTrace();
         if (ex.getMessage() == null) {
-            errors.add("GENERIC_ERROR");
+            errors.add("Ops, ocorreu um erro. Tente novamente mais tarde.");
         } else {
             errors.add(ex.getMessage());
         }

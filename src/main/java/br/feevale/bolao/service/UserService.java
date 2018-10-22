@@ -37,10 +37,21 @@ public class UserService {
     }
 
     public void save(User user) {
+        if (user != null && user.getId() != null) {
+            User savedUser = repository.getOne(user.getId());
+            user.setPassword(savedUser.getPassword());
+            user.setEmail(savedUser.getEmail());
+            user.setProfileImg(savedUser.getProfileImg());
+        }
+
         List<String> errors = validateUser(user);
         if (errors.isEmpty()) {
             validateEmail(user.getEmail());
-            repository.save(validatePassword(user));
+            if (user.getId() == null) {
+                repository.save(validatePassword(user));
+            } else {
+                repository.save(user);
+            }
         } else {
             throw new CustomException(errors);
         }
@@ -50,9 +61,14 @@ public class UserService {
         return repository.findAll();
     }
 
-//    public User findById(Long userId) {
-//        return repository.findById(userId).orElse(null);
-//    }
+    public User findById(Long userId) {
+        User user = repository.findById(userId).orElse(null);
+        if (user != null) {
+            user.setPassword(null);
+            return user;
+        }
+        return user;
+    }
 
     private List<String> validateUser(User user) {
         List<String> erros = new ArrayList<>();
@@ -69,7 +85,7 @@ public class UserService {
             erros.add("Nome não pode ser vazio.");
         }
 
-        if (erros.isEmpty()) {
+        if (erros.isEmpty() && user.getId() == null) {
             User savedUser = repository.findByEmail(user.getEmail());
             if (savedUser != null) {
                 erros.add("E-mail já cadastrado.");
