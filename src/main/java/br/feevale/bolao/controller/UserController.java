@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 
 @RestController
 @RequestMapping("user")
@@ -20,11 +21,11 @@ public class UserController {
     @Autowired
     private AuthService authService;
 
-//    @ResponseBody
-//    @RequestMapping(method = RequestMethod.GET)
-//    public List<User> listAll() {
-//        return userService.findAll();
-//    }
+    @ResponseBody
+    @RequestMapping(method = RequestMethod.GET)
+    public List<User> listAll() {
+        return userService.findAll();
+    }
 
     @ResponseBody
     @RequestMapping(method = RequestMethod.GET, value = "/{userId}")
