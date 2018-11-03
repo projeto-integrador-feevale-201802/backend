@@ -1,5 +1,8 @@
 package br.feevale.bolao.service;
 
+import br.feevale.bolao.model.GameMatch;
+import br.feevale.bolao.repository.GameMatchRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -10,9 +13,6 @@ import java.net.URL;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,86 +30,76 @@ public class ClassificationService {
     private static ArrayList<HashMap<String, Object>> teams = null;
     private static long lastUpdate = 0;
 
-    private class Match {
-        private String date;
-        private String home;
-        private String visitor;
-        private int scoreHome;
-        private int scoreVisitor;
+    @Autowired
+    private GameMatchRepository matchRepo;
 
-        private int hash = 0;
+//    private class GameMatch {
+//        public final String date;
+//        public final Tuple<String, String> clubs;
+//        public final Tuple<Integer, Integer> score;
+//
+//        public GameMatch(String home, Integer homeScore, String visitor, Integer visitorScore, String date) {
+//            clubs = new Tuple<>(home, visitor);
+//            score = new Tuple<>(homeScore, visitorScore);
+//            this.date = date;
+//        }
+//
+//        @Override
+//        public boolean equals(Object other) {
+//            GameMatch m = (GameMatch)other;
+//
+//            return m.date.equals(date) && m.clubs.equals(clubs) && m.score.equals(score);
+//        }
+//
+//        @Override
+//        public int hashCode() {
+//            return date.hashCode() ^ clubs.hashCode() ^ score.hashCode();
+//        }
+//    }
 
-        public Match()
-        { }
+    private class Tuple<T, U> {
+        public final T fst;
+        public final U snd;
 
-        public Match(String home, int homeScore, String visitor, int visitorScore) {
-            setHome(home);
-            setVisitor(visitor);
-            setScoreHome(homeScore);
-            setScoreVisitor(visitorScore);
-        }
-
-        public String getDate() {
-            return date;
-        }
-
-        public void setDate(String date) {
-            this.date = date;
-        }
-
-        public String getHome() {
-            return home;
-        }
-
-        public void setHome(String home) {
-            this.home = home;
-        }
-
-        public String getVisitor() {
-            return visitor;
-        }
-
-        public void setVisitor(String visitor) {
-            this.visitor = visitor;
-        }
-
-        public int getScoreHome() {
-            return scoreHome;
-        }
-
-        public void setScoreHome(int scoreHome) {
-            this.scoreHome = scoreHome;
-        }
-
-        public int getScoreVisitor() {
-            return scoreVisitor;
-        }
-
-        public void setScoreVisitor(int scoreVisitor) {
-            this.scoreVisitor = scoreVisitor;
+        public Tuple(T fst, U snd) {
+            this.fst = fst;
+            this.snd = snd;
         }
 
         @Override
         public boolean equals(Object other) {
-            if (other == null || !Match.class.isInstance(other)) {
-                return false;
-            }
+            Tuple<T, U> x = (Tuple<T, U>)other;
 
-            return hashCode() == other.hashCode();
+            return x.fst.equals(fst) && x.snd.equals(snd);
         }
 
         @Override
         public int hashCode() {
-            if (hash == 0) {
-                hash = (
-                    getHome() + "_" +
-                    getScoreHome() + "_" +
-                    getVisitor() + "_" +
-                    getScoreVisitor()
-                ).hashCode();
-            }
+            return fst.hashCode() ^ snd.hashCode();
+        }
+    }
 
-            return hash;
+    private class Triplet<T, U, V> {
+        public final T fst;
+        public final U snd;
+        public final V trd;
+
+        public Triplet(T fst, U snd, V trd) {
+            this.fst = fst;
+            this.snd = snd;
+            this.trd = trd;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            Triplet<T, U, V> x = (Triplet<T, U, V>)other;
+
+            return x.fst.equals(fst) && x.snd.equals(snd) && x.trd.equals(trd);
+        }
+
+        @Override
+        public int hashCode() {
+            return fst.hashCode() ^ snd.hashCode() ^ trd.hashCode();
         }
     }
 
@@ -131,42 +121,37 @@ public class ClassificationService {
     }
 
     public synchronized HashMap<String, Integer> getUsersClassification() {
-        final ArrayList<Match> allMatches = new ArrayList<>();
+        final ArrayList<GameMatch> gameMatches = new ArrayList<>();
 
         for (int i = 1; i <= 38; i++) {
-            allMatches.addAll(fetchRound(i));
+            gameMatches.addAll(fetchRound(i));
         }
 
-        // TODO: pegar as apostas do banco de dados
-        final HashMap<String, ArrayList<Match>> bets = new HashMap<>();
-        final HashMap<Match, ArrayList<String>> hits = new HashMap<>();
-
-        for (Match match : allMatches) {
-            if (!hits.containsKey(match)) {
-                hits.put(match, new ArrayList<>());
-            }
-
-            for (Map.Entry<String, ArrayList<Match>> pair : bets.entrySet()) {
-                for (Match bet : pair.getValue()) {
-                    if (bet.equals(match)) {
-                        hits.get(match).add(pair.getKey());
-                    }
-                }
-            }
-        }
-
+        final HashMap<Tuple<String, String>, ArrayList<Tuple<String, Tuple<Integer, Integer>>>> bets = new HashMap<>();
         final HashMap<String, Integer> points = new HashMap<>();
 
-        for (String user : bets.keySet()) {
-            points.put(user, 0);
-        }
+        for (GameMatch gameMatch : gameMatches) {
+            final ArrayList<String> winners = new ArrayList<>();
+            final Tuple<String, String> clubs = new Tuple<>(gameMatch.getNameHome(), gameMatch.getNameVisitor());
 
-        for (ArrayList<String> winners : hits.values()) {
+            for (Tuple<String, Tuple<Integer, Integer>> bet : bets.get(clubs)) {
+                String userName = bet.fst;
+                Tuple<Integer, Integer> score = bet.snd;
+
+                if (score.fst.equals(gameMatch.getScoreHome()) && score.snd.equals(gameMatch.getScoreVisitor())) {
+                    winners.add(userName);
+                }
+            }
+
             if (!winners.isEmpty()) {
-                Integer p = 10 / winners.size();
+                int p = 10 / winners.size();
 
-                for (String user : winners) {
-                    points.put(user, points.get(user) + p);
+                if (p < 1) {
+                    p = 1;
+                }
+
+                for (String winner : winners) {
+                    points.put(winner, points.getOrDefault(winner, 0) + p);
                 }
             }
         }
@@ -174,7 +159,46 @@ public class ClassificationService {
         return points;
     }
 
-    private ArrayList<Match> fetchRound(int number) {
+    public ArrayList<HashMap<String, String>> getRound(int number) {
+        if (number < 1 || number > 38) {
+            throw new RuntimeException("Rodada inválida");
+        }
+
+        updateMatchesTable();
+
+        final ArrayList<HashMap<String, String>> round = new ArrayList<>();
+
+        for (GameMatch m : matchRepo.findByRound(number)) {
+            final HashMap<String, String> clubs = new HashMap<>();
+
+            clubs.put("home", m.getNameHome());
+            clubs.put("visitor", m.getNameVisitor());
+
+            round.add(clubs);
+        }
+
+        return round;
+    }
+
+    private void updateMatchesTable() {
+        for (int i = 1; i <= 38; i++) {
+            for (GameMatch m1 : fetchRound(i)) {
+                GameMatch m2 = matchRepo.findByRoundAndHomeAndVisitor(i, m1.getNameHome(), m1.getNameVisitor());
+
+                if (m2 != null) {
+                    if (!m2.isSameScore(m1)) {
+                        m2.setScoreHome(m1.getScoreHome());
+                        m2.setScoreVisitor(m1.getScoreVisitor());
+                        matchRepo.save(m2);
+                    }
+                } else {
+                    matchRepo.save(m1);
+                }
+            }
+        }
+    }
+
+    private ArrayList<GameMatch> fetchRound(int number) {
         StringBuilder sb = null;
 
         try {
@@ -189,29 +213,34 @@ public class ClassificationService {
             return null;
         }
 
-        final ArrayList<Match> round = new ArrayList<>();
+        final ArrayList<GameMatch> round = new ArrayList<>();
 
         final Matcher matcherDates = regexDates.matcher(sb);
         final Matcher matcherScoreHome = regexScoreHome.matcher(sb);
         final Matcher matcherScoreVisitor = regexScoreVisitor.matcher(sb);
-
-        while (matcherDates.find() && matcherScoreHome.find() && matcherScoreVisitor.find()) {
-            Match match = new Match();
-
-            match.setDate(matcherDates.group(1));
-            match.setScoreHome(Integer.parseInt(matcherScoreHome.group(1)));
-            match.setScoreVisitor(Integer.parseInt(matcherScoreVisitor.group(1)));
-
-            round.add(match);
-        }
-
         final Matcher matcherNames = regexnNames.matcher(sb);
 
-        for (Match match : round) {
+        while (matcherDates.find() && matcherScoreHome.find() && matcherScoreVisitor.find()) {
+            String date = matcherDates.group(1);
+            Integer scoreHome = Integer.parseInt(matcherScoreHome.group(1));
+            Integer scoreVisistor = Integer.parseInt(matcherScoreVisitor.group(1));
+
             matcherNames.find();
-            match.setHome(matcherNames.group(1).toLowerCase());
+            String home = matcherNames.group(1).toLowerCase();
+
             matcherNames.find();
-            match.setVisitor(matcherNames.group(1).toLowerCase());
+            String visistor = matcherNames.group(1).toLowerCase();
+
+            GameMatch m = new GameMatch();
+
+            m.setRound(number);
+            m.setDate(date);
+            m.setNameHome(home);
+            m.setNameVisitor(visistor);
+            m.setScoreHome(scoreHome);
+            m.setScoreVisitor(scoreVisistor);
+
+            round.add(m);
         }
 
         return round;
