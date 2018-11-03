@@ -28,9 +28,13 @@ public class UserController {
     }
 
     @ResponseBody
-    @RequestMapping(method = RequestMethod.GET, value = "/{userId}")
-    public User getUser(@PathVariable("userId") Long userId) {
-        return userService.findById(userId);
+    @RequestMapping(method = RequestMethod.GET, value = "/{token}")
+    public User getUser(@PathVariable("token") String token) {
+        Long userId = authService.getAuthorizedUserId(token);
+        if (userId != null) {
+            return userService.findById(userId);
+        }
+        return null;
     }
 
 //    @ResponseBody
