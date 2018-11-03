@@ -19,6 +19,13 @@ public class AuthService {
         return repository.isTokenValid(token);
     }
 
+    public Long getAuthorizedUserId(String token) {
+        if (isAuthorized(token)) {
+            return repository.findByToken(token).getIdUser();
+        }
+        return null;
+    }
+
     public String authorize(long idUser) {
         try {
             repository.deleteById(idUser);
