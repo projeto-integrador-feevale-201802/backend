@@ -126,11 +126,27 @@ public class ClassificationService {
 
             if (html != null && html.length() > 0) {
                 updateTeamsCache(html);
-                updateMatchesTable(html);
-
-                 lastUpdate = Instant.now().getEpochSecond();
             }
-        } catch (IOException ex) {
+
+            lastUpdate = Instant.now().getEpochSecond();
+
+            ArrayList<Thread> threads = new ArrayList<>();
+
+            for (int i = 1; i <= 38; i++) {
+                final int round = i;
+                final StringBuilder sb = downloadPage("https://globoesporte.globo.com/servico/backstage/esportes_campeonato/esporte/futebol/modalidade/futebol_de_campo/categoria/profissional/campeonato/campeonato-brasileiro/edicao/campeonato-brasileiro-2018/fases/fase-unica-seriea-2018/rodada/" + round + "/jogos.html");
+
+                Thread t = new Thread(() -> updateMatchesTable(sb, round));
+
+                t.start();
+
+                threads.add(t);
+            }
+
+            for (Thread t : threads) {
+                t.join();
+            }
+        } catch (Exception ex) {
             // TODO logar exception em algum lugar
             return;
         }
@@ -178,42 +194,47 @@ public class ClassificationService {
         }
     }
 
-    private void updateMatchesTable(StringBuilder html) {
-        final Pattern regexNames = Pattern.compile("<a href=\"#\" title=\"([^\"]+)");
-        final Pattern rounds_regexScoreHome = Pattern.compile("score__home\">(\\d*)<");
-        final Pattern rounds_regexScoreVisitor = Pattern.compile("score__guest\">(\\d*)<");
-        final Pattern rounds_regexDates = Pattern.compile("class=\"date\">\\s+(.{3}\\s-\\s.{10})?");
+    private void updateMatchesTable(StringBuilder html, int round) {
+        final Pattern regexScoreHome = Pattern.compile("mandante\">(\\d+)<\\/");
+        final Pattern regexScoreVisitor = Pattern.compile("visitante\">(\\d+)<\\/");
+        final Pattern regexnNames = Pattern.compile("placar-jogo-equipes-nome\">([^<]+)<\\/");
+        final Pattern regexDates = Pattern.compile("placar-jogo-informacoes\">.{4}(\\d\\d\\/\\d\\d\\/\\d{4})");
 
+        final Matcher matcherDates = regexDates.matcher(html);
+        final Matcher matcherScoreHome = regexScoreHome.matcher(html);
+        final Matcher matcherScoreVisitor = regexScoreVisitor.matcher(html);
 
-        final Matcher rounds_matcherDates = rounds_regexDates.matcher(new StringBuilder(html));
-        final Matcher matcherNames = regexNames.matcher(html);
-        final Matcher rounds_matcherScoreHome = rounds_regexScoreHome.matcher(new StringBuilder(html));
-        final Matcher rounds_matcherScoreVisitor = rounds_regexScoreVisitor.matcher(new StringBuilder(html));
+        final ArrayList<GameMatch> matches = new ArrayList<>();
 
-        for (int i = 1; i <= 380; i++) {
-            rounds_matcherDates.find();
-            rounds_matcherScoreHome.find();
-            rounds_matcherScoreVisitor.find();
+        while (matcherDates.find()) {
+            GameMatch match = new GameMatch();
 
-            GameMatch m1 = new GameMatch();
-
-//            m1.setDate(rounds_matcherDates.group(1));
-            m1.setDate("");
-
-            matcherNames.find();
-            m1.setNameHome(matcherNames.group(1));
-
-            matcherNames.find();
-            m1.setNameVisitor(matcherNames.group(1));
-
-            m1.setScoreHome(rounds_matcherScoreHome.group(1).isEmpty() ? null : Integer.parseInt(rounds_matcherScoreHome.group(1)));
-            m1.setScoreVisitor(rounds_matcherScoreVisitor.group(1).isEmpty() ? null : Integer.parseInt(rounds_matcherScoreVisitor.group(1)));
-
-            m1.setRound(i % 10);
-
-            if (m1.getDate().length() > 10) {
-                m1.setDate(m1.getDate().substring(6));
+            if (matcherScoreHome.find()) {
+                match.setScoreHome(Integer.parseInt(matcherScoreHome.group(1)));
+            } else {
+                match.setScoreHome(null);
             }
+
+            if (matcherScoreVisitor.find()) {
+                match.setScoreVisitor(Integer.parseInt(matcherScoreVisitor.group(1)));
+            } else {
+                match.setScoreVisitor(null);
+            }
+
+            match.setDate(matcherDates.group(1));
+
+            match.setRound(round);
+
+            matches.add(match);
+        }
+
+        final Matcher matcherNames = regexnNames.matcher(html);
+
+        for (GameMatch m1 : matches) {
+            matcherNames.find();
+            m1.setNameHome(matcherNames.group(1).toLowerCase());
+            matcherNames.find();
+            m1.setNameVisitor(matcherNames.group(1).toLowerCase());
 
             GameMatch m2 = matchRepo.findByHomeAndVisitor(m1.getNameHome(), m1.getNameVisitor());
 
