@@ -96,7 +96,7 @@ public class ClassificationService {
             result.add(x);
         }
 
-        result.sort((a, b) -> ((Integer)a.get("points")).compareTo((Integer)b.get("points")));
+        result.sort((a, b) -> ((Integer)b.get("points")).compareTo((Integer)a.get("points")));
 
         return result;
     }
