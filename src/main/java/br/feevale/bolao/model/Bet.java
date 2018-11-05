@@ -14,7 +14,7 @@ public class Bet {
     private Long id;
 
     @Column(name = "idmatch")
-    private Integer idMatch;
+    private Long idMatch;
 
     @Column(name = "iduser")
     private Long idUser;
@@ -36,11 +36,11 @@ public class Bet {
         this.id = id;
     }
 
-    public Integer getIdMatch() {
+    public Long getIdMatch() {
         return idMatch;
     }
 
-    public void setIdMatch(Integer idMatch) {
+    public void setIdMatch(Long idMatch) {
         this.idMatch = idMatch;
     }
 

@@ -27,4 +27,10 @@ public class ClassificationController {
     public Object users(@PathVariable("number")int number) {
         return classificationService.getRound(number);
     }
+
+    @ResponseBody
+    @RequestMapping(method = RequestMethod.GET, value = "/update")
+    public void update() {
+        classificationService.update();
+    }
 }

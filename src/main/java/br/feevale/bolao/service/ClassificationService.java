@@ -35,28 +35,20 @@ public class ClassificationService {
     @Autowired
     private UserRepository userRepo;
 
-    public synchronized ArrayList<HashMap<String, Object>> getTeamsClassification() {
-        if (teams == null || Instant.now().getEpochSecond() - lastUpdate > 3 * HOUR) {
-            update();
-        }
-
+    public ArrayList<HashMap<String, Object>> getTeamsClassification() {
         return teams;
     }
 
-    public synchronized ArrayList<HashMap<String, Object>> getUsersClassification() {
-        if (teams == null || Instant.now().getEpochSecond() - lastUpdate > 3 * HOUR) {
-            update();
-        }
-
+    public ArrayList<HashMap<String, Object>> getUsersClassification() {
         final List<GameMatch> gameMatches = matchRepo.findFinishedMatches();
 
-        final HashMap<Integer, ArrayList<Bet>> bets = new HashMap<>();
+        final HashMap<Long, ArrayList<Bet>> bets = new HashMap<>();
+
+        for (GameMatch m : gameMatches) {
+            bets.put(m.getId(), new ArrayList<>());
+        }
 
         for (Bet bet : betRepo.findAll()) {
-            if (!bets.containsKey(bet.getIdMatch())) {
-                bets.put(bet.getIdMatch(), new ArrayList<>());
-            }
-
             bets.get(bet.getIdMatch()).add(bet);
         }
 
@@ -114,10 +106,6 @@ public class ClassificationService {
             throw new RuntimeException("Rodada inválida");
         }
 
-        if (teams == null || Instant.now().getEpochSecond() - lastUpdate > 3 * HOUR) {
-            update();
-        }
-
         final ArrayList<HashMap<String, String>> round = new ArrayList<>();
 
         for (GameMatch m : matchRepo.findByRound(number)) {
@@ -132,7 +120,7 @@ public class ClassificationService {
         return round;
     }
 
-    private void update() {
+    public synchronized void update() {
         try {
             StringBuilder html = downloadPage("https://www.gazetaesportiva.com/campeonatos/brasileiro-serie-a/");
 
@@ -140,7 +128,7 @@ public class ClassificationService {
                 updateTeamsCache(html);
                 updateMatchesTable(html);
 
-                // lastUpdate = Instant.now().getEpochSecond();
+                 lastUpdate = Instant.now().getEpochSecond();
             }
         } catch (IOException ex) {
             // TODO logar exception em algum lugar
@@ -210,7 +198,6 @@ public class ClassificationService {
             GameMatch m1 = new GameMatch();
 
 //            m1.setDate(rounds_matcherDates.group(1));
-
             m1.setDate("");
 
             matcherNames.find();
