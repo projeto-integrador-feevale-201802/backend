@@ -9,6 +9,9 @@ import java.util.List;
 public interface GameMatchRepository extends JpaRepository<GameMatch, Long> {
     List<GameMatch> findByRound(Integer round);
 
-    @Query(value = "select * from game_match where round = ?1 and name_home = ?2 and name_visitor = ?3", nativeQuery = true)
-    GameMatch findByRoundAndHomeAndVisitor(int round, String home, String visitor);
+    @Query(value = "select * from game_match where name_home = ?1 and name_visitor = ?2", nativeQuery = true)
+    GameMatch findByHomeAndVisitor(String home, String visitor);
+
+    @Query(value = "select * from game_match where score_home is not null and score_visitor is not null", nativeQuery = true)
+    List<GameMatch> findFinishedMatches();
 }

@@ -13,7 +13,7 @@ public class ClassificationController {
     @ResponseBody
     @RequestMapping(method = RequestMethod.GET, value = "/teams")
     public Object teams() {
-        return classificationService.getTeamsClassificationJson();
+        return classificationService.getTeamsClassification();
     }
 
     @ResponseBody
