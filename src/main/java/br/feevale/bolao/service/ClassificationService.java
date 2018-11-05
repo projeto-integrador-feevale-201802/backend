@@ -57,52 +57,6 @@ public class ClassificationService {
 //        }
 //    }
 
-    private class Tuple<T, U> {
-        public final T fst;
-        public final U snd;
-
-        public Tuple(T fst, U snd) {
-            this.fst = fst;
-            this.snd = snd;
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            Tuple<T, U> x = (Tuple<T, U>)other;
-
-            return x.fst.equals(fst) && x.snd.equals(snd);
-        }
-
-        @Override
-        public int hashCode() {
-            return fst.hashCode() ^ snd.hashCode();
-        }
-    }
-
-    private class Triplet<T, U, V> {
-        public final T fst;
-        public final U snd;
-        public final V trd;
-
-        public Triplet(T fst, U snd, V trd) {
-            this.fst = fst;
-            this.snd = snd;
-            this.trd = trd;
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            Triplet<T, U, V> x = (Triplet<T, U, V>)other;
-
-            return x.fst.equals(fst) && x.snd.equals(snd) && x.trd.equals(trd);
-        }
-
-        @Override
-        public int hashCode() {
-            return fst.hashCode() ^ snd.hashCode() ^ trd.hashCode();
-        }
-    }
-
     public synchronized ArrayList<HashMap<String, Object>> getTeamsClassificationJson() {
         long now = Instant.now().getEpochSecond();
 
@@ -220,25 +174,29 @@ public class ClassificationService {
         final Matcher matcherScoreVisitor = regexScoreVisitor.matcher(sb);
         final Matcher matcherNames = regexnNames.matcher(sb);
 
-        while (matcherDates.find() && matcherScoreHome.find() && matcherScoreVisitor.find()) {
+        while (matcherDates.find()) { // && matcherScoreHome.find() && matcherScoreVisitor.find()) {
             String date = matcherDates.group(1);
-            Integer scoreHome = Integer.parseInt(matcherScoreHome.group(1));
-            Integer scoreVisistor = Integer.parseInt(matcherScoreVisitor.group(1));
+            Integer scoreHome = null;
+            Integer scoreVisitor = null;
+            if (matcherScoreHome.find() && matcherScoreVisitor.find()) {
+                scoreHome = Integer.parseInt(matcherScoreHome.group(1));
+                scoreVisitor = Integer.parseInt(matcherScoreVisitor.group(1));
+            }
 
             matcherNames.find();
-            String home = matcherNames.group(1).toLowerCase();
+            String home = matcherNames.group(1); //.toLowerCase();
 
             matcherNames.find();
-            String visistor = matcherNames.group(1).toLowerCase();
+            String visitor = matcherNames.group(1); //.toLowerCase();
 
             GameMatch m = new GameMatch();
 
             m.setRound(number);
             m.setDate(date);
             m.setNameHome(home);
-            m.setNameVisitor(visistor);
+            m.setNameVisitor(visitor);
             m.setScoreHome(scoreHome);
-            m.setScoreVisitor(scoreVisistor);
+            m.setScoreVisitor(scoreVisitor);
 
             round.add(m);
         }
@@ -250,7 +208,7 @@ public class ClassificationService {
         StringBuilder sb = null;
 
         try {
-            sb = downloadPage("https://globoesporte.globo.com/futebol/brasileirao-serie-a/");
+            sb = downloadPage("https://web.archive.org/web/20181028093445/https://globoesporte.globo.com/futebol/brasileirao-serie-a/");
         } catch (IOException ex) {
             // TODO logar exception em algum lugar
             return;
@@ -285,7 +243,6 @@ public class ClassificationService {
         lastUpdate = Instant.now().getEpochSecond();
     }
 
-
     private StringBuilder downloadPage(String url) throws IOException {
         try (InputStream inputStream = new URL(url).openStream()) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -297,6 +254,52 @@ public class ClassificationService {
             }
 
             return sb;
+        }
+    }
+
+    private class Tuple<T, U> {
+        public final T fst;
+        public final U snd;
+
+        public Tuple(T fst, U snd) {
+            this.fst = fst;
+            this.snd = snd;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            Tuple<T, U> x = (Tuple<T, U>) other;
+
+            return x.fst.equals(fst) && x.snd.equals(snd);
+        }
+
+        @Override
+        public int hashCode() {
+            return fst.hashCode() ^ snd.hashCode();
+        }
+    }
+
+    private class Triplet<T, U, V> {
+        public final T fst;
+        public final U snd;
+        public final V trd;
+
+        public Triplet(T fst, U snd, V trd) {
+            this.fst = fst;
+            this.snd = snd;
+            this.trd = trd;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            Triplet<T, U, V> x = (Triplet<T, U, V>) other;
+
+            return x.fst.equals(fst) && x.snd.equals(snd) && x.trd.equals(trd);
+        }
+
+        @Override
+        public int hashCode() {
+            return fst.hashCode() ^ snd.hashCode() ^ trd.hashCode();
         }
     }
 }
