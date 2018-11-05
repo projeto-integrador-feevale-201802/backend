@@ -16,7 +16,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -96,7 +98,7 @@ public class ClassificationService {
             result.add(x);
         }
 
-        result.sort((a, b) -> ((Integer)b.get("points")).compareTo((Integer)a.get("points")));
+        result.sort((a, b) -> ((Integer) b.get("points")).compareTo((Integer) a.get("points")));
 
         return result;
     }
@@ -265,6 +267,52 @@ public class ClassificationService {
             }
 
             return sb;
+        }
+    }
+
+    private class Tuple<T, U> {
+        public final T fst;
+        public final U snd;
+
+        public Tuple(T fst, U snd) {
+            this.fst = fst;
+            this.snd = snd;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            Tuple<T, U> x = (Tuple<T, U>) other;
+
+            return x.fst.equals(fst) && x.snd.equals(snd);
+        }
+
+        @Override
+        public int hashCode() {
+            return fst.hashCode() ^ snd.hashCode();
+        }
+    }
+
+    private class Triplet<T, U, V> {
+        public final T fst;
+        public final U snd;
+        public final V trd;
+
+        public Triplet(T fst, U snd, V trd) {
+            this.fst = fst;
+            this.snd = snd;
+            this.trd = trd;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            Triplet<T, U, V> x = (Triplet<T, U, V>) other;
+
+            return x.fst.equals(fst) && x.snd.equals(snd) && x.trd.equals(trd);
+        }
+
+        @Override
+        public int hashCode() {
+            return fst.hashCode() ^ snd.hashCode() ^ trd.hashCode();
         }
     }
 }
