@@ -22,7 +22,7 @@ public class GameMatchController {
 
     @ResponseBody
     @RequestMapping(method = RequestMethod.GET, value = "/rounds")
-    public List<GameMatch> findNewRounds() {
+    public List<Integer> findNewRounds() {
         return service.findNewRounds();
     }
 }

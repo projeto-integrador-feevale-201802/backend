@@ -17,7 +17,7 @@ public class GameMatchService {
         return repository.findNewGamesByRound(round);
     }
 
-    public List<GameMatch> findNewRounds() {
+    public List<Integer> findNewRounds() {
         return repository.findNewRounds();
     }
 
