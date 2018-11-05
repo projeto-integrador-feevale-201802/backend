@@ -174,20 +174,16 @@ public class ClassificationService {
         final Matcher matcherScoreVisitor = regexScoreVisitor.matcher(sb);
         final Matcher matcherNames = regexnNames.matcher(sb);
 
-        while (matcherDates.find()) { // && matcherScoreHome.find() && matcherScoreVisitor.find()) {
+        while (matcherDates.find() && matcherScoreHome.find() && matcherScoreVisitor.find()) {
             String date = matcherDates.group(1);
-            Integer scoreHome = null;
-            Integer scoreVisitor = null;
-            if (matcherScoreHome.find() && matcherScoreVisitor.find()) {
-                scoreHome = Integer.parseInt(matcherScoreHome.group(1));
-                scoreVisitor = Integer.parseInt(matcherScoreVisitor.group(1));
-            }
+            Integer scoreHome = Integer.parseInt(matcherScoreHome.group(1));
+            Integer scoreVisitor = Integer.parseInt(matcherScoreVisitor.group(1));
 
             matcherNames.find();
-            String home = matcherNames.group(1); //.toLowerCase();
+            String home = matcherNames.group(1).toLowerCase();
 
             matcherNames.find();
-            String visitor = matcherNames.group(1); //.toLowerCase();
+            String visitor = matcherNames.group(1).toLowerCase();
 
             GameMatch m = new GameMatch();
 
