@@ -13,7 +13,7 @@ public class ClassificationController {
     @ResponseBody
     @RequestMapping(method = RequestMethod.GET, value = "/teams")
     public Object teams() {
-        return classificationService.getTeamsClassificationJson();
+        return classificationService.getTeamsClassification();
     }
 
     @ResponseBody
@@ -26,5 +26,11 @@ public class ClassificationController {
     @RequestMapping(method = RequestMethod.GET, value = "/round/{number}")
     public Object users(@PathVariable("number")int number) {
         return classificationService.getRound(number);
+    }
+
+    @ResponseBody
+    @RequestMapping(method = RequestMethod.GET, value = "/update")
+    public void update() {
+        classificationService.update();
     }
 }
