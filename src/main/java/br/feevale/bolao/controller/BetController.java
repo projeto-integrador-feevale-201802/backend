@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("bet")
@@ -21,9 +20,4 @@ public class BetController {
         service.save(bets);
     }
 
-    @ResponseBody
-    @RequestMapping(method = RequestMethod.GET, value = "/{userId}/{round}")
-    public List<Bet> getBet(@PathVariable("userId") Long userId, @PathVariable("round") Integer round) {
-        return service.findAll();
-    }
 }

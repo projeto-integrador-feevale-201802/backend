@@ -17,8 +17,17 @@ public class GameMatchService {
         return repository.findNewGamesByRound(round);
     }
 
+    public List<GameMatch> findNewGamesByRoundAndUser(int userId, int round) {
+//        return repository.findNewGamesByRoundAndUser(userId, round);
+        return repository.findNewGamesByRound(round);
+    }
+
     public List<Integer> findNewRounds() {
         return repository.findNewRounds();
+    }
+
+    public List<Integer> findFinishedRounds() {
+        return repository.findFinishedRounds();
     }
 
 }

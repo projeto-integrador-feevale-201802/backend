@@ -25,4 +25,16 @@ public class GameMatchController {
     public List<Integer> findNewRounds() {
         return service.findNewRounds();
     }
+
+    @ResponseBody
+    @RequestMapping(method = RequestMethod.GET, value = "/finishedRounds")
+    public List<Integer> findFinishedRounds() {
+        return service.findFinishedRounds();
+    }
+
+    @ResponseBody
+    @RequestMapping(method = RequestMethod.GET, value = "/{userId}/{round}")
+    public List<GameMatch> findByRoundAndUser(@PathVariable("userId") Integer userId, @PathVariable("round") Integer round) {
+        return service.findNewGamesByRoundAndUser(userId, round);
+    }
 }
