@@ -3,6 +3,7 @@ package br.feevale.bolao.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -25,8 +26,8 @@ public class Bet {
     @Column(name = "scorevisitor")
     private Integer scoreVisitor;
 
-    @Column(name = "dtcreated")
-    private String dtCreated;
+    @Column(name = "created")
+    private Date created;
 
     public Long getId() {
         return id;
@@ -68,11 +69,11 @@ public class Bet {
         this.scoreVisitor = scoreVisitor;
     }
 
-    public String getDtCreated() {
-        return dtCreated;
+    public Date getCreated() {
+        return created;
     }
 
-    public void setDtCreated(String dtCreated) {
-        this.dtCreated = dtCreated;
+    public void setCreated(Date created) {
+        this.created = created;
     }
 }

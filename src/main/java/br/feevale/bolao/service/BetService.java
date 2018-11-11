@@ -5,6 +5,8 @@ import br.feevale.bolao.repository.BetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.sql.Date;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,16 +17,23 @@ public class BetService {
     BetRepository repository;
 
     public void save(ArrayList<Bet> bets) {
-        bets.forEach(bet -> {
+        for (Bet bet : bets) {
             if (bet.getScoreHome() != null && bet.getScoreVisitor() != null) {
-                bet.setDtCreated("29/10/2018");
+                bet.setCreated(Date.from(Instant.now()));
+
+                Long id = repository.find(bet.getIdMatch(), bet.getIdUser());
+
+                if (id != null) {
+                    bet.setId(id);
+                }
+
                 repository.save(bet);
             }
-        });
+        }
     }
 
-    public List<Bet> findAll() {
-        return repository.findAll();
+    public List<Bet> find(long user, int round) {
+        return repository.find(user, round);
     }
 
 }

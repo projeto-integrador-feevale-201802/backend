@@ -24,6 +24,6 @@ public class BetController {
     @ResponseBody
     @RequestMapping(method = RequestMethod.GET, value = "/{userId}/{round}")
     public List<Bet> getBet(@PathVariable("userId") Long userId, @PathVariable("round") Integer round) {
-        return service.findAll();
+        return service.find(userId, round);
     }
 }
