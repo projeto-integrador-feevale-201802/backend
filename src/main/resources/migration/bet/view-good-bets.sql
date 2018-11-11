@@ -7,9 +7,8 @@ alter table game_match add played timestamp null;
 
 create view vw_good_bets as
 select
-  m.id match_id,
-  u.name user_name,
-  u.idUser user_id
+  m.id matchId,
+  u.idUser userId
 from
   bet b
   join game_match m on b.idMatch = m.id
@@ -17,4 +16,4 @@ from
 where
   b.scoreHome = m.score_home
   and b.scoreVisitor = m.score_visitor
-  and b.created < m.date;
+  and b.created < m.played;

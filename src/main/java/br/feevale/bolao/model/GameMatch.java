@@ -73,12 +73,12 @@ public class GameMatch {
     }
 
     public boolean isSameScore(GameMatch m) {
-        if (getScoreHome() == null && m.getScoreHome() != null) {
-            return false;
+        if (getScoreHome() == null) {
+            return m.getScoreHome() == null;
         }
 
-        if (getScoreVisitor() == null && m.getScoreVisitor() != null) {
-            return false;
+        if (getScoreVisitor() == null) {
+            return m.getScoreVisitor() == null;
         }
 
         return getScoreHome().equals(m.getScoreHome()) && getScoreVisitor().equals(m.getScoreVisitor());
