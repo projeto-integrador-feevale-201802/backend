@@ -2,11 +2,11 @@ package br.feevale.bolao.model;
 
 public class Success {
 
+    private String success;
+
     public Success() {
         this.success = "true";
     }
-
-    private String success;
 
     public String getSuccess() {
         return success;

@@ -1,19 +1,22 @@
-delete from bet;
-alter table bet drop dtCreated;
-alter table bet add created timestamp not null;
-delete from game_match;
-alter table game_match drop date;
-alter table game_match add played timestamp null;
+--liquibase formatted sql
+--changeset includeAll:view_good_bets
 
-create view vw_good_bets as
-select
-  m.id matchId,
-  u.idUser userId
-from
-  bet b
-  join game_match m on b.idMatch = m.id
-  join user u on b.idUser = u.idUser
-where
-  b.scoreHome = m.score_home
-  and b.scoreVisitor = m.score_visitor
-  and b.created < m.played;
+DELETE FROM bet;
+ALTER TABLE bet DROP COLUMN dtCreated;
+ALTER TABLE bet ADD created TIMESTAMP NOT NULL;
+DELETE FROM game_match;
+ALTER TABLE game_match DROP COLUMN `date`;
+ALTER TABLE game_match ADD played TIMESTAMP NULL;
+
+CREATE VIEW vw_good_bets AS
+  SELECT
+    m.id matchId,
+    u.idUser userId
+  FROM
+    bet b
+    JOIN game_match m ON b.idMatch = m.id
+    JOIN user u ON b.idUser = u.idUser
+  WHERE
+    b.scoreHome = m.score_home
+    AND b.scoreVisitor = m.score_visitor
+    AND b.created < m.played;

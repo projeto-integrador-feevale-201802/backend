@@ -1,6 +1,9 @@
 package br.feevale.bolao.model;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import java.util.Date;
 
 @Entity
@@ -94,14 +97,14 @@ public class GameMatch {
 
     @Override
     public boolean equals(Object other) {
-        GameMatch m = (GameMatch)other;
+        GameMatch m = (GameMatch) other;
 
         return
-            m.getRound().equals(getRound()) &&
-            m.getNameHome().equals(getNameHome()) &&
-            m.getScoreHome().equals(getScoreHome()) &&
-            isSamePlayed(m) &&
-            isSameScore(m);
+                m.getRound().equals(getRound()) &&
+                        m.getNameHome().equals(getNameHome()) &&
+                        m.getScoreHome().equals(getScoreHome()) &&
+                        isSamePlayed(m) &&
+                        isSameScore(m);
     }
 
     @Override

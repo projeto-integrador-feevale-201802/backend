@@ -9,12 +9,13 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface BetRepository extends JpaRepository<Bet, Long> {
-    @Query(value = "select idBet from bet where idMatch = ?1 and idUser = ?2", nativeQuery = true)
+
+    @Query(value = "SELECT idBet FROM bet WHERE idMatch = ?1 AND idUser = ?2", nativeQuery = true)
     Long findOfMatch(long idMatch, long idUser);
 
-    @Query(value = "call bets_by_user( ?1 , ?2 )", nativeQuery = true)
+    @Query(value = "CALL bets_by_user( ?1 , ?2 )", nativeQuery = true)
     List<View_BetByUser> findOfUser(long idUser, int round);
 
-    @Query(value = "select * from vw_good_bets", nativeQuery = true)
+    @Query(value = "SELECT * FROM vw_good_bets", nativeQuery = true)
     List<View_GoodBet> findGoodBets();
 }

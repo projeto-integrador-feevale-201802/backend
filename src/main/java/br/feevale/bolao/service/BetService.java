@@ -16,14 +16,6 @@ public class BetService {
     @Autowired
     BetRepository repository;
 
-    //    public void save(ArrayList<Bet> bets) {
-//        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-//        String dateNow = format.format(new Date());
-//
-//        bets.forEach(bet -> {
-//            if (bet.getScoreHome() != null && bet.getScoreVisitor() != null) {
-//                bet.setDtCreated(dateNow);
-//                repository.save(bet);
     public void save(List<Bet> bets) {
         for (Bet bet : bets) {
             if (bet.getScoreHome() == null || bet.getScoreVisitor() == null) {
@@ -45,9 +37,5 @@ public class BetService {
     public List<View_BetByUser> find(long user, int round) {
         return repository.findOfUser(user, round);
     }
-
-//    public List<GameBet> findByUserAndRound(Integer userId, Integer round) {
-//        return gameBetRepository.findByUserAndRound(userId, round);
-//    }
 
 }

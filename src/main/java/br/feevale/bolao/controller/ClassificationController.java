@@ -24,7 +24,7 @@ public class ClassificationController {
 
     @ResponseBody
     @RequestMapping(method = RequestMethod.GET, value = "/round/{number}")
-    public Object users(@PathVariable("number")int number) {
+    public Object users(@PathVariable("number") int number) {
         return classificationService.getRound(number);
     }
 

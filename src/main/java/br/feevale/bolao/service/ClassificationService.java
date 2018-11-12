@@ -1,6 +1,5 @@
 package br.feevale.bolao.service;
 
-import br.feevale.bolao.model.Bet;
 import br.feevale.bolao.model.GameMatch;
 import br.feevale.bolao.model.User;
 import br.feevale.bolao.model.View_GoodBet;
@@ -225,11 +224,11 @@ public class ClassificationService {
 
         for (GameMatch m1 : matches) {
             matcherNames.find();
-            m1.setNameHome(matcherNames.group(1).toLowerCase());
+            m1.setNameHome(matcherNames.group(1));
             matcherNames.find();
-            m1.setNameVisitor(matcherNames.group(1).toLowerCase());
+            m1.setNameVisitor(matcherNames.group(1));
 
-            GameMatch m2 = matchRepo.findByHomeAndVisitor(m1.getNameHome(), m1.getNameVisitor());
+            GameMatch m2 = matchRepo.findByHomeAndVisitor(m1.getNameHome().toLowerCase(), m1.getNameVisitor().toLowerCase());
 
             if (m2 != null) {
                 if (!m2.isSameScore(m1)) {

@@ -11,6 +11,6 @@
     <include relativeToChangelogFile="true" file="auth/auth-create-table.sql"/>
     <include relativeToChangelogFile="true" file="classification/match-create-table.sql"/>
     <include relativeToChangelogFile="true" file="bet/bet-create-table.sql"/>
-    <!--<include relativeToChangelogFile="true" file="bet/view-good-bets.sql" />-->
+    <include relativeToChangelogFile="true" file="bet/view-good-bets.sql" />
     <!--<include relativeToChangelogFile="true" file="bet/proc-bets-by-user.sql"/>-->
 </databaseChangeLog>
