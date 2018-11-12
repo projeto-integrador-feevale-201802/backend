@@ -3,6 +3,7 @@ package br.feevale.bolao.service;
 import br.feevale.bolao.model.Bet;
 import br.feevale.bolao.model.GameMatch;
 import br.feevale.bolao.model.User;
+import br.feevale.bolao.model.View_GoodBet;
 import br.feevale.bolao.repository.BetRepository;
 import br.feevale.bolao.repository.GameMatchRepository;
 import br.feevale.bolao.repository.UserRepository;
@@ -15,18 +16,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
 public class ClassificationService {
-    private static final long HOUR = 3600;
     private static ArrayList<HashMap<String, Object>> teams = null;
-    private static long lastUpdate = 0;
 
     @Autowired
     private GameMatchRepository matchRepo;
@@ -41,53 +40,38 @@ public class ClassificationService {
         return teams;
     }
 
-    public ArrayList<HashMap<String, Object>> getUsersClassification() {
-        final List<GameMatch> gameMatches = matchRepo.findFinishedMatches();
-
-        final HashMap<Long, ArrayList<Bet>> bets = new HashMap<>();
-
-        for (GameMatch m : gameMatches) {
-            bets.put(m.getId(), new ArrayList<>());
-        }
-
-        for (Bet bet : betRepo.findAll()) {
-            bets.get(bet.getIdMatch()).add(bet);
-        }
-
+    public List<HashMap<String, Object>> getUsersClassification() {
+        final Map<Long, Integer> points = new HashMap<>();
         final List<User> users = userRepo.findAll();
-
-        final HashMap<Long, Integer> points = new HashMap<>();
+        final Map<Long, ArrayList<Long>> matches_users = new HashMap<>();
+        final List<HashMap<String, Object>> result = new ArrayList<>();
 
         for (User user : users) {
             points.put(user.getId(), 0);
         }
 
-        for (GameMatch match : gameMatches) {
-            final ArrayList<Long> winners = new ArrayList<>();
+        for (View_GoodBet gb : betRepo.findGoodBets()) {
+            Long matchId = gb.getMatchId();
+            Long userId = gb.getUserId();
 
-            for (Bet bet : bets.get(match.getId())) {
-                boolean gotHome = bet.getScoreHome().equals(match.getScoreHome());
-                boolean gotVisistor = bet.getScoreVisitor().equals(match.getScoreVisitor());
-
-                if (gotHome && gotVisistor) {
-                    winners.add(bet.getIdUser());
-                }
+            if (!matches_users.containsKey(matchId)) {
+                matches_users.put(matchId, new ArrayList<>());
             }
 
-            if (!winners.isEmpty()) {
-                int p = 10 / winners.size();
-
-                if (p < 1) {
-                    p = 1;
-                }
-
-                for (Long userId : winners) {
-                    points.put(userId, points.get(userId) + p);
-                }
-            }
+            matches_users.get(matchId).add(userId);
         }
 
-        ArrayList<HashMap<String, Object>> result = new ArrayList<>();
+        for (List<Long> winners : matches_users.values()) {
+            int p = 10 / winners.size();
+
+            if (p < 1) {
+                p = 1;
+            }
+
+            for (Long userId : winners) {
+                points.put(userId, points.get(userId) + p);
+            }
+        }
 
         for (User user : users) {
             HashMap<String, Object> x = new HashMap<>();
@@ -129,8 +113,6 @@ public class ClassificationService {
             if (html != null && html.length() > 0) {
                 updateTeamsCache(html);
             }
-
-            lastUpdate = Instant.now().getEpochSecond();
 
             ArrayList<Thread> threads = new ArrayList<>();
 
@@ -223,7 +205,16 @@ public class ClassificationService {
                 match.setScoreVisitor(null);
             }
 
-            match.setDate(matcherDates.group(1));
+            if (!matcherDates.group(1).isEmpty()) {
+                DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+
+                try {
+                    Date date = formatter.parse(matcherDates.group(1));
+                    match.setPlayed(date);
+                } catch (ParseException e) {
+                    // TODO logar
+                }
+            }
 
             match.setRound(round);
 
@@ -267,52 +258,6 @@ public class ClassificationService {
             }
 
             return sb;
-        }
-    }
-
-    private class Tuple<T, U> {
-        public final T fst;
-        public final U snd;
-
-        public Tuple(T fst, U snd) {
-            this.fst = fst;
-            this.snd = snd;
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            Tuple<T, U> x = (Tuple<T, U>) other;
-
-            return x.fst.equals(fst) && x.snd.equals(snd);
-        }
-
-        @Override
-        public int hashCode() {
-            return fst.hashCode() ^ snd.hashCode();
-        }
-    }
-
-    private class Triplet<T, U, V> {
-        public final T fst;
-        public final U snd;
-        public final V trd;
-
-        public Triplet(T fst, U snd, V trd) {
-            this.fst = fst;
-            this.snd = snd;
-            this.trd = trd;
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            Triplet<T, U, V> x = (Triplet<T, U, V>) other;
-
-            return x.fst.equals(fst) && x.snd.equals(snd) && x.trd.equals(trd);
-        }
-
-        @Override
-        public int hashCode() {
-            return fst.hashCode() ^ snd.hashCode() ^ trd.hashCode();
         }
     }
 }
