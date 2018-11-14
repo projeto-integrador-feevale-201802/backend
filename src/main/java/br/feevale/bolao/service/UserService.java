@@ -44,7 +44,15 @@ public class UserService {
             if (user.getPassword() == null || user.getPassword().equals("")) {
                 user.setPassword(savedUser.getPassword());
             } else {
-                user = validatePassword(user);
+                if (user.getPassword().equals(user.getConfpassword())) {
+                    if (savedUser.getPassword().equals(encryptPassword(user.getCurrentpassword()))) {
+                        user = validatePassword(user);
+                    } else {
+                        throw new CustomException("Senha atual inválida.");
+                    }
+                } else {
+                    throw new CustomException("As senhas não coincidem.");
+                }
             }
         }
 

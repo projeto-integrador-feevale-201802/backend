@@ -17,6 +17,12 @@ public class User {
 
     private String password;
 
+    @Transient
+    private String confpassword;
+
+    @Transient
+    private String currentpassword;
+
     private String email;
 
     @Column(name = "profileimg")
@@ -60,5 +66,21 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getConfpassword() {
+        return confpassword;
+    }
+
+    public void setConfpassword(String confpassword) {
+        this.confpassword = confpassword;
+    }
+
+    public String getCurrentpassword() {
+        return currentpassword;
+    }
+
+    public void setCurrentpassword(String currentpassword) {
+        this.currentpassword = currentpassword;
     }
 }
