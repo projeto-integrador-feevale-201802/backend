@@ -39,9 +39,13 @@ public class UserService {
     public void save(User user) {
         if (user != null && user.getId() != null) {
             User savedUser = repository.getOne(user.getId());
-            user.setPassword(savedUser.getPassword());
             user.setEmail(savedUser.getEmail());
             user.setProfileImg(savedUser.getProfileImg());
+            if (user.getPassword() == null || user.getPassword().equals("")) {
+                user.setPassword(savedUser.getPassword());
+            } else {
+                user = validatePassword(user);
+            }
         }
 
         List<String> errors = validateUser(user);
