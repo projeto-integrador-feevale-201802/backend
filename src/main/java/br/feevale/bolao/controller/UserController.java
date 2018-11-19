@@ -15,39 +15,6 @@ import java.util.List;
 @RequestMapping("user")
 public class UserController {
 
-    public class ChangePasswordDTO {
-        private String token;
-        private String password;
-
-        public String getToken() {
-            return token;
-        }
-
-        public void setToken(String token) {
-            this.token = token;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
-    }
-
-    public class StartPasswordRecoveryDTO {
-        private String email;
-
-        public String getEmail() {
-            return email;
-        }
-
-        public void setEmail(String email) {
-            this.email = email;
-        }
-    }
-
     @Autowired
     private UserService userService;
 
@@ -70,22 +37,6 @@ public class UserController {
         return null;
     }
 
-//    @ResponseBody
-//    @RequestMapping(method = RequestMethod.GET, value = "/{userId}")
-//    public Resource<User> getUser(@PathVariable("userId") Long userId) {
-//        List<String> erros = new ArrayList<>();
-
-//        erros.add("email envalido");
-//        erros.add("senha errada");
-//        throw new CustomException(erros);
-
-//        throw new CustomException("exemplo de erro");
-
-//        User userNull = null;
-//        userNull.getEmail(); // Null Pointer Exception Test Handler
-//        return null;
-//    }
-
     @ResponseBody
     @RequestMapping(method = RequestMethod.POST, value = "/save")
     public void save(@RequestBody User user) {
@@ -104,7 +55,7 @@ public class UserController {
 
     @ResponseBody
     @RequestMapping(method = RequestMethod.POST, value = "/start-password-recovery")
-    public void startPasswordRecovery(@RequestBody StartPasswordRecoveryDTO body) {
+    public void startPasswordRecovery(@RequestBody User body) {
         userService.startPasswordRecovery(body.getEmail());
     }
 
@@ -130,6 +81,27 @@ public class UserController {
     @PostMapping(value = "/logout")
     public void logout(@RequestBody Auth auth) {
         authService.removeAuth(auth.getToken());
+    }
+
+    private class ChangePasswordDTO {
+        private String token;
+        private String password;
+
+        public String getToken() {
+            return token;
+        }
+
+        public void setToken(String token) {
+            this.token = token;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
     }
 
 }
