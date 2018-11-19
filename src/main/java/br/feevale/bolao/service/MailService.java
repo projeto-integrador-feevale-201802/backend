@@ -1,5 +1,6 @@
 package br.feevale.bolao.service;
 
+import br.feevale.bolao.model.User;
 import org.springframework.stereotype.Component;
 
 import javax.mail.*;
@@ -9,12 +10,12 @@ import java.util.Properties;
 
 @Component
 public class MailService {
-
-    private static final String MAIL_ADDRESS = "mail@gmail.com";
-    private static final String MAIL_PASSWORD = "pass";
+    private static final String MAIL_ADDRESS = "bolao.feevale@gmail.com";
+    private static final String MAIL_PASSWORD = "meda10sandra";
 
     public void sendMailRecoveryPassword(String destName, String destMailAddress, String param) {
         StringBuilder sb = new StringBuilder();
+
         sb.append("<html><head><title>Bolão Feevale</title></head>");
         sb.append("<body>");
         sb.append("<h2>Bolão Feevale</h2>");
@@ -23,7 +24,6 @@ public class MailService {
         sb.append("<p>Para criar uma nova senha clique em: ").append(param).append("</p>");
         sb.append("<br/><br/>");
         sb.append("</body></html>");
-
 
         sendMail(destMailAddress, "Bolão Feevale - Criar nova senha", sb.toString());
     }
@@ -40,6 +40,23 @@ public class MailService {
         sb.append("</body></html>");
 
         sendMail(destMailAddress, "Bolão Feevale - Confirmar Conta", sb.toString());
+    }
+
+    public void sendMailChangePassword(User user) {
+        String url = "http://localhost:8080/senha/" + user.getToken();
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("<html><head><title>Bolão Feevale</title></head>");
+        sb.append("<body>");
+        sb.append("<h2>Bolão Feevale</h2>");
+        sb.append("<h3>Cadastrar senha</h3>");
+        sb.append("<p>Oi, ").append(user.getName()).append("</p>");
+        sb.append("<p>Para cadastrar sua senha, acesse: ").append(url).append("</p>");
+        sb.append("<br/><br/>");
+        sb.append("</body></html>");
+
+        sendMail(user.getEmail(), "Bolão Feevale - Senha", sb.toString());
     }
 
     private void sendMail(String to, String subject, String body) {

@@ -22,12 +22,15 @@ import java.util.regex.Pattern;
 @Component
 public class UserService {
 
-    private static String emailRegex = "[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}";
+    private static String emailRegex = "[^\\s]+@[^\\s]+\\.[^\\s]+";
     private static String passwordRegex = "[^\\s]{6,10}";
     private static final String PASS_SALT = "u2cHHUAIEDYKkDjCj2FkKHFKo1EtDuiBFEEVALE";
 
     @Autowired
     UserRepository repository;
+
+    @Autowired
+    MailService mailService;
 
     public User findByEmailAndPassword(String email, String password) {
         User user = repository.findByEmailAndPassword(email, encryptPassword(password));
@@ -114,14 +117,12 @@ public class UserService {
             throw new CustomException("Usuário não encontrado");
         }
 
-        String token = UUID.randomUUID().toString();
-
-        user.setToken(token);
+        user.setToken(UUID.randomUUID().toString());
         user.setChangingPassword(true);
 
         repository.save(user);
 
-        // TODO disparar e-mail com o token
+        mailService.sendMailChangePassword(user);
     }
 
     public List<User> findAll() {
