@@ -15,58 +15,113 @@ import java.security.spec.KeySpec;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
 public class UserService {
 
-    private static final Pattern EMAIL_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
-
-    private static final int PASS_MIN_LENGTH = 6;
-
-    private static final int PASS_MAX_LENGTH = 10;
-
+    private static String emailRegex = "[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}";
+    private static String passwordRegex = "[^\\s]{6,10}";
     private static final String PASS_SALT = "u2cHHUAIEDYKkDjCj2FkKHFKo1EtDuiBFEEVALE";
 
     @Autowired
     UserRepository repository;
 
     public User findByEmailAndPassword(String email, String password) {
-        return repository.findByEmailAndPassword(email, encryptPassword(password));
+        User user = repository.findByEmailAndPassword(email, encryptPassword(password));
+
+        if (user != null && user.isChangingPassword()) {
+            throw new CustomException("Aguardando confirmação de senha. Verifique seu e-mail.");
+        }
+
+        return user;
     }
 
-    public void save(User user) {
-        if (user != null && user.getId() != null) {
-            User savedUser = repository.getOne(user.getId());
-            user.setEmail(savedUser.getEmail());
-            user.setProfileImg(savedUser.getProfileImg());
-            if (user.getPassword() == null || user.getPassword().equals("")) {
-                user.setPassword(savedUser.getPassword());
-            } else {
-                if (user.getPassword().equals(user.getConfpassword())) {
-                    if (savedUser.getPassword().equals(encryptPassword(user.getCurrentpassword()))) {
-                        user = validatePassword(user);
-                    } else {
-                        throw new CustomException("Senha atual inválida.");
-                    }
-                } else {
-                    throw new CustomException("As senhas não coincidem.");
-                }
-            }
+    public void create(User user) {
+        if (user.getEmail() == null || !user.getEmail().matches(emailRegex)) {
+            throw new CustomException("E-mail inválido");
         }
 
-        List<String> errors = validateUser(user);
-        if (errors.isEmpty()) {
-            validateEmail(user.getEmail());
-            if (user.getId() == null) {
-                repository.save(validatePassword(user));
-            } else {
-                repository.save(user);
-            }
-        } else {
-            throw new CustomException(errors);
+        if (repository.findByEmail(user.getEmail()) != null) {
+            throw new CustomException("E-mail já cadastrado");
         }
+
+        if (user.getName() == null || user.getName().trim().equals("")) {
+            throw new CustomException("Nome inválido");
+        }
+
+        repository.save(user);
+
+        startPasswordRecovery(user.getEmail());
+    }
+
+    public void update(User user) {
+        User currentUser = repository.getOne(user.getId());
+
+        if (currentUser == null) {
+            throw new CustomException("Usuário inválido.");
+        }
+
+        if (!currentUser.getEmail().equals(user.getEmail())) {
+            throw new CustomException("Não é permitido alterar o endereço de e-mail.");
+        }
+
+        if (user.getPassword() != null && !user.getPassword().trim().equals("")) {
+            if (!user.getPassword().matches(passwordRegex)) {
+                throw new CustomException("Senha inválida.");
+            }
+
+            if (!user.getConfpassword().equals(user.getPassword())) {
+                throw new CustomException("Senha não conferem.");
+            }
+
+            user.setPassword(encryptPassword(user.getPassword()));
+        } else {
+            user.setPassword(currentUser.getPassword());
+        }
+
+        if (user.getName() == null || user.getName().trim().equals("")) {
+            throw new CustomException("Nome inválido");
+        }
+
+        repository.save(user);
+    }
+
+    public void updatePassword(String password, String token) {
+        User user = repository.findByToken(token);
+
+        if (user == null) {
+            throw new CustomException("Usuário não encontrado");
+        }
+
+        if (password == null || !password.matches(passwordRegex)) {
+            throw new CustomException("Senha inválida");
+        }
+
+        user.setPassword(encryptPassword(password));
+        user.setChangingPassword(false);
+        user.setToken(null);
+
+        repository.save(user);
+    }
+
+    public void startPasswordRecovery(String email) {
+        User user = repository.findByEmail(email);
+
+        if (user == null) {
+            throw new CustomException("Usuário não encontrado");
+        }
+
+        String token = UUID.randomUUID().toString();
+
+        user.setToken(token);
+        user.setChangingPassword(true);
+
+        repository.save(user);
+
+        // TODO disparar e-mail com o token
     }
 
     public List<User> findAll() {
@@ -80,47 +135,6 @@ public class UserService {
             return user;
         }
         return user;
-    }
-
-    private List<String> validateUser(User user) {
-        List<String> erros = new ArrayList<>();
-
-        if (user.getEmail() == null || user.getEmail().trim() == "") {
-            erros.add("E-mail não pode ser vazio.");
-        }
-
-        if (user.getPassword() == null || user.getPassword().trim() == "") {
-            erros.add("Senha não pode ser vazia.");
-        }
-
-        if (user.getName() == null || user.getName().trim() == "") {
-            erros.add("Nome não pode ser vazio.");
-        }
-
-        if (erros.isEmpty() && user.getId() == null) {
-            User savedUser = repository.findByEmail(user.getEmail());
-            if (savedUser != null) {
-                erros.add("E-mail já cadastrado.");
-            }
-        }
-
-        return erros;
-    }
-
-    private void validateEmail(String email) {
-        Matcher matcher = EMAIL_REGEX.matcher(email);
-        if (!matcher.find()) {
-            throw new CustomException("E-Mail inválido.");
-        }
-    }
-
-    private User validatePassword(User user) {
-        if (user.getPassword() != null && user.getPassword().length() <= PASS_MAX_LENGTH && user.getPassword().length() >= PASS_MIN_LENGTH) {
-            user.setPassword(encryptPassword(user.getPassword()));
-            return user;
-        }
-
-        throw new CustomException(String.format("Senha deve possuir entre %s e %s caracteres.", PASS_MIN_LENGTH, PASS_MAX_LENGTH));
     }
 
     private String encryptPassword(String password) {

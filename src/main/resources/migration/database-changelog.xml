@@ -13,4 +13,7 @@
     <include relativeToChangelogFile="true" file="bet/bet-create-table.sql"/>
     <include relativeToChangelogFile="true" file="bet/view-good-bets.sql" />
     <!--<include relativeToChangelogFile="true" file="bet/proc-bets-by-user.sql"/>-->
+    <include relativeToChangelogFile="true" file="user/change-password-column.sql"/>
+    <include relativeToChangelogFile="true" file="user/token-column.sql"/>
+    <include relativeToChangelogFile="true" file="user/allow-null-password.sql"/>
 </databaseChangeLog>

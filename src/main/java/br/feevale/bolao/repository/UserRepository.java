@@ -15,4 +15,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(value = "SELECT idUser, name, email, NULL AS password, NULL AS profileimg FROM user", nativeQuery = true)
     List<User> findAll();
 
+    User findByToken(String token);
 }

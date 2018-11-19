@@ -15,6 +15,39 @@ import java.util.List;
 @RequestMapping("user")
 public class UserController {
 
+    public class ChangePasswordDTO {
+        private String token;
+        private String password;
+
+        public String getToken() {
+            return token;
+        }
+
+        public void setToken(String token) {
+            this.token = token;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+    }
+
+    public class StartPasswordRecoveryDTO {
+        private String email;
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+    }
+
     @Autowired
     private UserService userService;
 
@@ -56,7 +89,23 @@ public class UserController {
     @ResponseBody
     @RequestMapping(method = RequestMethod.POST, value = "/save")
     public void save(@RequestBody User user) {
-        userService.save(user);
+        if (user.getId() == null) {
+            userService.create(user);
+        } else {
+            userService.update(user);
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping(method = RequestMethod.POST, value = "/change-password")
+    public void changePassword(@RequestBody ChangePasswordDTO body) {
+        userService.updatePassword(body.getPassword(), body.getToken());
+    }
+
+    @ResponseBody
+    @RequestMapping(method = RequestMethod.POST, value = "/start-password-recovery")
+    public void startPasswordRecovery(@RequestBody StartPasswordRecoveryDTO body) {
+        userService.startPasswordRecovery(body.getEmail());
     }
 
     @ResponseBody

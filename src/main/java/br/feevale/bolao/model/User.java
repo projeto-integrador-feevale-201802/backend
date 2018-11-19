@@ -28,6 +28,10 @@ public class User {
     @Column(name = "profileimg")
     private String profileImg;
 
+    private boolean isChangingPassword;
+
+    private String token;
+
     public Long getId() {
         return id;
     }
@@ -82,5 +86,21 @@ public class User {
 
     public void setCurrentpassword(String currentpassword) {
         this.currentpassword = currentpassword;
+    }
+
+    public boolean isChangingPassword() {
+        return isChangingPassword;
+    }
+
+    public void setChangingPassword(boolean changingPassword) {
+        isChangingPassword = changingPassword;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }
