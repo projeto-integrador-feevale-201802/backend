@@ -13,35 +13,6 @@ public class MailService {
     private static final String MAIL_ADDRESS = "bolao.feevale@gmail.com";
     private static final String MAIL_PASSWORD = "meda10sandra";
 
-    public void sendMailRecoveryPassword(String destName, String destMailAddress, String param) {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("<html><head><title>Bolão Feevale</title></head>");
-        sb.append("<body>");
-        sb.append("<h2>Bolão Feevale</h2>");
-        sb.append("<h3>Criar nova senha</h3>");
-        sb.append("<p>Oi, ").append(destName).append("</p>");
-        sb.append("<p>Para criar uma nova senha clique em: ").append(param).append("</p>");
-        sb.append("<br/><br/>");
-        sb.append("</body></html>");
-
-        sendMail(destMailAddress, "Bolão Feevale - Criar nova senha", sb.toString());
-    }
-
-    public void sendMailConfirmAccount(String destName, String destMailAddress, String param) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("<html><head><title>Bolão Feevale</title></head>");
-        sb.append("<body>");
-        sb.append("<h2>Bolão Feevale</h2>");
-        sb.append("<h3>Confirmar conta</h3>");
-        sb.append("<p>Oi, ").append(destName).append("</p>");
-        sb.append("<p>Para confirmar sua conta e criar uma senha clique em: ").append(param).append("</p>");
-        sb.append("<br/><br/>");
-        sb.append("</body></html>");
-
-        sendMail(destMailAddress, "Bolão Feevale - Confirmar Conta", sb.toString());
-    }
-
     public void sendMailChangePassword(User user) {
         String url = "http://localhost:8080/senha/" + user.getToken();
 

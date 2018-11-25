@@ -49,8 +49,8 @@ public class UserController {
 
     @ResponseBody
     @RequestMapping(method = RequestMethod.POST, value = "/change-password")
-    public void changePassword(@RequestBody ChangePasswordDTO body) {
-        userService.updatePassword(body.getPassword(), body.getToken());
+    public void changePassword(@RequestBody User user) {
+        userService.updatePassword(user.getPassword(), user.getToken());
     }
 
     @ResponseBody
@@ -81,27 +81,6 @@ public class UserController {
     @PostMapping(value = "/logout")
     public void logout(@RequestBody Auth auth) {
         authService.removeAuth(auth.getToken());
-    }
-
-    private class ChangePasswordDTO {
-        private String token;
-        private String password;
-
-        public String getToken() {
-            return token;
-        }
-
-        public void setToken(String token) {
-            this.token = token;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
     }
 
 }
