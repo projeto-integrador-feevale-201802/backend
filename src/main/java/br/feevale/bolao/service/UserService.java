@@ -12,25 +12,30 @@ import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Component
 public class UserService {
 
+    private static final String PASS_SALT = "u2cHHUAIEDYKkDjCj2FkKHFKo1EtDuiBFEEVALE";
     private static String emailRegex = "[^\\s]+@[^\\s]+\\.[^\\s]+";
     private static String passwordRegex = "[^\\s]{6,10}";
-    private static final String PASS_SALT = "u2cHHUAIEDYKkDjCj2FkKHFKo1EtDuiBFEEVALE";
 
     @Autowired
     UserRepository repository;
 
     @Autowired
     MailService mailService;
+
+    public void save(User user) {
+        if (user.getId() == null) {
+            create(user);
+        } else {
+            update(user);
+        }
+    }
 
     public User findByEmailAndPassword(String email, String password) {
         User user = repository.findByEmailAndPassword(email, encryptPassword(password));
@@ -40,56 +45,6 @@ public class UserService {
         }
 
         return user;
-    }
-
-    public void create(User user) {
-        if (user.getEmail() == null || !user.getEmail().matches(emailRegex)) {
-            throw new CustomException("E-mail inválido");
-        }
-
-        if (repository.findByEmail(user.getEmail()) != null) {
-            throw new CustomException("E-mail já cadastrado");
-        }
-
-        if (user.getName() == null || user.getName().trim().equals("")) {
-            throw new CustomException("Nome inválido");
-        }
-
-        repository.save(user);
-
-        startPasswordRecovery(user.getEmail());
-    }
-
-    public void update(User user) {
-        User currentUser = repository.getOne(user.getId());
-
-        if (currentUser == null) {
-            throw new CustomException("Usuário inválido.");
-        }
-
-        if (!currentUser.getEmail().equals(user.getEmail())) {
-            throw new CustomException("Não é permitido alterar o endereço de e-mail.");
-        }
-
-        if (user.getPassword() != null && !user.getPassword().trim().equals("")) {
-            if (!user.getPassword().matches(passwordRegex)) {
-                throw new CustomException("Senha inválida.");
-            }
-
-            if (!user.getConfpassword().equals(user.getPassword())) {
-                throw new CustomException("Senha não conferem.");
-            }
-
-            user.setPassword(encryptPassword(user.getPassword()));
-        } else {
-            user.setPassword(currentUser.getPassword());
-        }
-
-        if (user.getName() == null || user.getName().trim().equals("")) {
-            throw new CustomException("Nome inválido");
-        }
-
-        repository.save(user);
     }
 
     public void updatePassword(String password, String token) {
@@ -136,6 +91,60 @@ public class UserService {
             return user;
         }
         return user;
+    }
+
+    private void create(User user) {
+        if (user.getEmail() == null || !user.getEmail().matches(emailRegex)) {
+            throw new CustomException("E-mail inválido");
+        }
+
+        if (repository.findByEmail(user.getEmail()) != null) {
+            throw new CustomException("E-mail já cadastrado");
+        }
+
+        if (user.getName() == null || user.getName().trim().equals("")) {
+            throw new CustomException("Nome inválido");
+        }
+
+        repository.save(user);
+
+        startPasswordRecovery(user.getEmail());
+    }
+
+    private void update(User user) {
+        User currentUser = repository.findById(user.getId()).orElse(null);
+
+        if (currentUser == null) {
+            throw new CustomException("Usuário inválido.");
+        }
+
+        user.setEmail(currentUser.getEmail());
+
+        if (user.getPassword() != null && !user.getPassword().trim().equals("")
+                && user.getCurrentpassword() != null && !user.getCurrentpassword().trim().equals("")) {
+
+            if (!encryptPassword(user.getCurrentpassword()).equals(currentUser.getPassword())) {
+                throw new CustomException("Senha incorreta.");
+            }
+
+            if (!user.getPassword().matches(passwordRegex)) {
+                throw new CustomException("Senha inválida.");
+            }
+
+            if (!user.getConfpassword().equals(user.getPassword())) {
+                throw new CustomException("Senha não conferem.");
+            }
+
+            user.setPassword(encryptPassword(user.getPassword()));
+        } else {
+            user.setPassword(currentUser.getPassword());
+        }
+
+        if (user.getName() == null || user.getName().trim().equals("")) {
+            throw new CustomException("Nome inválido");
+        }
+
+        repository.save(user);
     }
 
     private String encryptPassword(String password) {

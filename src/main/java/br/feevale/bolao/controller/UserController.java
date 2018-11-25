@@ -40,11 +40,7 @@ public class UserController {
     @ResponseBody
     @RequestMapping(method = RequestMethod.POST, value = "/save")
     public void save(@RequestBody User user) {
-        if (user.getId() == null) {
-            userService.create(user);
-        } else {
-            userService.update(user);
-        }
+        userService.save(user);
     }
 
     @ResponseBody
